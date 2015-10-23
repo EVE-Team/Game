@@ -197,7 +197,7 @@
 				light.position.set( 0.5, 1, 0.75 );
 				scene.add( light );*/
 
-				var light = new THREE.AmbientLight( 0x000000 ); // soft white light
+				var light = new THREE.AmbientLight( 0x000000 );
 				scene.add( light )
 
 
@@ -272,17 +272,23 @@
 				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
 				// floor
-				geometry = new THREE.PlaneGeometry( 2000, 2000, 10, 10 );
-				geometry.rotateX( - Math.PI / 2 );
-				material = new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('res/img/concrete.png')});
-				mesh = new THREE.Mesh( geometry, material );
-				scene.add( mesh );
-				geometry = new THREE.PlaneGeometry( 2000, 2000, 1, 1 );
+				geometry = new THREE.PlaneGeometry( 700, 700);
 				geometry.rotateX( - Math.PI / 2 );
 
-				var floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
+				var floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/concrete.png' );
 				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-				floorTexture.repeat.set(240, 240);
+				floorTexture.repeat.set(40, 40);
+
+				material = new THREE.MeshBasicMaterial({ map: floorTexture});
+				mesh = new THREE.Mesh( geometry, material );
+				scene.add( mesh );
+
+				geometry = new THREE.PlaneGeometry( 700, 700);
+				geometry.rotateX( - Math.PI / 2 );
+
+				floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
+				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+				floorTexture.repeat.set(160, 160);
 
 			  material = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide });
 				mesh = new THREE.Mesh( geometry, material );
@@ -290,39 +296,13 @@
 				scene.add( mesh );
 
 				geometry = new THREE.BoxGeometry( 20, 60, 20 );
+				floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
+				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+				floorTexture.repeat.set(4, 8);
 
-			/*	var tcoords = [];
-				for ( var i = 0; i < 500; i ++ ) {
-
-					material = new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('brick.png')});
-					var mesh = new THREE.Mesh( geometry, material );
-					var temp = {};
-					var x = Math.floor( Math.random() * 20 - 10 ) * 20;
-					var y = 0;
-					var z = Math.floor( Math.random() * 20 - 10 ) * 20;
-					temp.x = x;
-					temp.y = y;
-					temp.z = z;
-					mesh.position.x = x;
-					mesh.position.y = y;
-					mesh.position.z = z;
-					scene.add( mesh );
-					objects.push( mesh );
-					tcoords.push(temp);
-				}
-				var tempMap = {};
-				tempMap.coords = tcoords;
-				alert(JSON.stringify(tcoords));*/
-
-				for ( var i = 0; i < map.coords.length; i ++ ) {
-
-					//material = new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('brick.png')});
-
-					var floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
-					floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-					floorTexture.repeat.set(4, 8);
-					material = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-
+				for ( var i = 0; i < map.coords.length; i ++ )
+				{
+					material = new THREE.MeshBasicMaterial( { map: floorTexture} );
 					var mesh = new THREE.Mesh( geometry, material );
 					mesh.position.x = map.coords[i].x;
 					mesh.position.y = 0;
