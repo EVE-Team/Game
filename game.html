@@ -283,6 +283,7 @@
 				mesh = new THREE.Mesh( geometry, material );
 				scene.add( mesh );
 
+				/*
 				geometry = new THREE.PlaneGeometry( 700, 700);
 				geometry.rotateX( - Math.PI / 2 );
 
@@ -290,11 +291,11 @@
 				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
 				floorTexture.repeat.set(160, 160);
 
-			  material = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide });
+			  	material = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide });
 				mesh = new THREE.Mesh( geometry, material );
 				mesh.position.y = 30;
 				scene.add( mesh );
-
+				*/
 				geometry = new THREE.BoxGeometry( 20, 60, 20 );
 				floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
 				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
