@@ -272,41 +272,44 @@
 				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
 				// floor
-				geometry = new THREE.PlaneGeometry( 700, 700);
+				geometry = new THREE.PlaneGeometry(280, 280);
 				geometry.rotateX( - Math.PI / 2 );
 
-				var floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/concrete.png' );
-				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-				floorTexture.repeat.set(40, 40);
+				var texture = new THREE.ImageUtils.loadTexture( 'res/img/concrete.png' );
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set(40, 40);
 
-				material = new THREE.MeshBasicMaterial({ map: floorTexture});
+				material = new THREE.MeshBasicMaterial({ map: texture});
 				mesh = new THREE.Mesh( geometry, material );
+				mesh.position.x = 140;
+				mesh.position.y = 0;
+				mesh.position.z = 140;
 				scene.add( mesh );
 
 				/*
 				geometry = new THREE.PlaneGeometry( 700, 700);
 				geometry.rotateX( - Math.PI / 2 );
 
-				floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
-				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-				floorTexture.repeat.set(160, 160);
+				texture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set(160, 160);
 
-			  	material = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide });
+			  	material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
 				mesh = new THREE.Mesh( geometry, material );
 				mesh.position.y = 30;
 				scene.add( mesh );
 				*/
-				geometry = new THREE.BoxGeometry( 20, 60, 20 );
-				floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
-				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-				floorTexture.repeat.set(4, 8);
+				geometry = new THREE.BoxGeometry( 20, 30, 20 );
+				texture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set(4, 8);
 
 				for ( var i = 0; i < map.coords.length; i ++ )
 				{
-					material = new THREE.MeshBasicMaterial( { map: floorTexture} );
+					material = new THREE.MeshBasicMaterial( { map: texture} );
 					var mesh = new THREE.Mesh( geometry, material );
 					mesh.position.x = map.coords[i].x;
-					mesh.position.y = 0;
+					mesh.position.y = 15;
 					mesh.position.z = map.coords[i].z;
 					scene.add( mesh );
 					objects.push( mesh );
