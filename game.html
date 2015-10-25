@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>three.js - pointerlock controls</title>
+		<title> Labirint </title>
 		<style>
 			html, body {
 				width: 100%;
@@ -286,19 +286,20 @@
 				mesh.position.z = 140;
 				scene.add( mesh );
 
-				/*
-				geometry = new THREE.PlaneGeometry( 700, 700);
-				geometry.rotateX( - Math.PI / 2 );
+				geometry = new THREE.PlaneGeometry( 280, 280);
+				geometry.rotateX( - 3 *Math.PI / 2 );
 
 				texture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-				texture.repeat.set(160, 160);
+				texture.repeat.set(40, 40);
 
-			  	material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+			  material = new THREE.MeshBasicMaterial({ map: texture});
 				mesh = new THREE.Mesh( geometry, material );
+				mesh.position.x = 140;
 				mesh.position.y = 30;
+				mesh.position.z = 140;
 				scene.add( mesh );
-				*/
+
 				geometry = new THREE.BoxGeometry( 20, 30, 20 );
 				texture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
