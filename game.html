@@ -287,7 +287,7 @@
 				scene.add( mesh );
 
 				geometry = new THREE.PlaneGeometry( 280, 280);
-				geometry.rotateX( - 3 *Math.PI / 2 );
+				geometry.rotateX(Math.PI / 2 );
 
 				texture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
