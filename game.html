@@ -58,6 +58,7 @@
 		</style>
 	</head>
 	<body>
+		<script src='Box2dWeb.min.js'></script>
 		<script src="three.min.js"></script>
 		<script src="js/controls/PointerLockControls.js"></script>
 		<script src="map.js"></script>
@@ -81,6 +82,19 @@
 			var objects = [];
 
 			var raycaster;
+			var   keyAxis        = [0, 0];
+			b2World        = Box2D.Dynamics.b2World,
+			b2FixtureDef   = Box2D.Dynamics.b2FixtureDef,
+			b2BodyDef      = Box2D.Dynamics.b2BodyDef,
+			b2Body		   = Box2D.Dynamics.b2Body,
+			b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape,
+			b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
+			b2Settings     = Box2D.Common.b2Settings,
+			b2Vec2         = Box2D.Common.Math.b2Vec2,
+
+	// Box2D world variables
+			wWorld         = undefined,
+			wPlayer          = undefined;
 
 			var blocker = document.getElementById( 'blocker' );
 			var instructions = document.getElementById( 'instructions' );
@@ -191,79 +205,72 @@
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0x000000, 0, 150 );
+				scene.fog = new THREE.Fog( 0x000000, 0, 750 );
 
 				/*var light = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.6);
 				light.position.set( 0.5, 1, 0.75 );
-				scene.add( light );*/
+				scene.add( light );
 
 				var light = new THREE.AmbientLight( 0x000000 );
-				scene.add( light )
-
+				scene.add( light );*/
 
 				controls = new THREE.PointerLockControls( camera );
 				scene.add( controls.getObject() );
 				controls.getObject().position.x = 60;
 				controls.getObject().position.z = 60;
 
-				var onKeyDown = function ( event ) {
-
-					switch ( event.keyCode ) {
-
+				var onKeyDown = function ( event )
+				{
+					switch ( event.keyCode )
+					{
 						case 38: // up
 						case 87: // w
 							moveForward = true;
+							keyAxis[0] = -1;
 							break;
-
 						case 37: // left
 						case 65: // a
-							moveLeft = true; break;
-
+							moveLeft = true;
+							keyAxis[1] = 1;
+							break;
 						case 40: // down
 						case 83: // s
 							moveBackward = true;
+							keyAxis[0] = 1;
 							break;
-
 						case 39: // right
 						case 68: // d
 							moveRight = true;
+							keyAxis[1] = -1;
 							break;
-
 						case 32: // space
 							if ( canJump === true ) velocity.y += 350;
 							canJump = false;
 							break;
-
 					}
-
 				};
 
-				var onKeyUp = function ( event ) {
-
-					switch( event.keyCode ) {
-
+				var onKeyUp = function ( event )
+				{
+					switch( event.keyCode )
+					{
 						case 38: // up
 						case 87: // w
 							moveForward = false;
 							break;
-
 						case 37: // left
 						case 65: // a
 							moveLeft = false;
 							break;
-
 						case 40: // down
 						case 83: // s
 							moveBackward = false;
 							break;
-
 						case 39: // right
 						case 68: // d
 							moveRight = false;
 							break;
-
 					}
-
 				};
 
 				document.addEventListener( 'keydown', onKeyDown, false );
@@ -272,33 +279,29 @@
 				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
 				// floor
-				geometry = new THREE.PlaneGeometry(280, 280);
-				geometry.rotateX( - Math.PI / 2 );
+			/*	var floorGeometry = new THREE.PlaneGeometry(280, 280, 1, 1);
+				floorGeometry.rotateX( -Math.PI / 2 );
+				var floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/concrete.png' );
+				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+				floorTexture.repeat.set(40, 40);
+				var floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture});
+				var floor = new THREE.Mesh( floorGeometry, floorMaterial );
+				floor.position.x = 140;
+				floor.position.y = 0;
+				floor.position.z = 140;
+				scene.add(floor);
 
-				var texture = new THREE.ImageUtils.loadTexture( 'res/img/concrete.png' );
-				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-				texture.repeat.set(40, 40);
-
-				material = new THREE.MeshBasicMaterial({ map: texture});
-				mesh = new THREE.Mesh( geometry, material );
-				mesh.position.x = 140;
-				mesh.position.y = 0;
-				mesh.position.z = 140;
-				scene.add( mesh );
-
-				geometry = new THREE.PlaneGeometry( 280, 280);
-				geometry.rotateX(Math.PI / 2 );
-
-				texture = new THREE.ImageUtils.loadTexture( 'res/img/brick.png' );
-				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-				texture.repeat.set(40, 40);
-
-			  material = new THREE.MeshBasicMaterial({ map: texture});
-				mesh = new THREE.Mesh( geometry, material );
-				mesh.position.x = 140;
-				mesh.position.y = 30;
-				mesh.position.z = 140;
-				scene.add( mesh );
+			  var roofGeometry = new THREE.PlaneGeometry( 280, 280, 1, 1);
+				roofGeometry.rotateX(Math.PI / 2 );
+				roofTexture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
+				roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping;
+				roofTexture.repeat.set(40, 40);
+			  roofMaterial = new THREE.MeshBasicMaterial({ map: roofTexture, side: THREE.DoubleSide });
+				var roof = new THREE.Mesh( roofGeometry, roofMaterial );
+				roof.position.x = 140;
+				roof.position.y = 30;
+				roof.position.z = 140;
+				scene.add( roof );*/
 
 				geometry = new THREE.BoxGeometry( 20, 30, 20 );
 				texture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
@@ -315,9 +318,6 @@
 					scene.add( mesh );
 					objects.push( mesh );
 				}
-
-
-
 				//
 
 				renderer = new THREE.WebGLRenderer();
@@ -329,29 +329,58 @@
 				//
 
 				window.addEventListener( 'resize', onWindowResize, false );
-
+				CreatePhysicsWorld();
 			}
 
-			function modelLoadedCallback(geometry) {
+			function CreatePhysicsWorld()
+			{
+				wWorld = new b2World(new b2Vec2(0, 0), true);
+				var bodyDef = new b2BodyDef();
+				bodyDef.type = b2Body.b2_dynamicBody;
+				bodyDef.position.Set(60, 60);
+				wPlayer = wWorld.CreateBody(bodyDef);
+				var fixDef = new b2FixtureDef();
+				fixDef.density = 1.0;
+				fixDef.friction = 0.0;
+				fixDef.restitution = 0.25;
+				fixDef.shape = new b2CircleShape(2);
+				wPlayer.CreateFixture(fixDef);
 
-        mesh = new THREE.Mesh( geometry, material );
-
-        group.add(mesh);
-        scene.add( group );
-
+				bodyDef.type = b2Body.b2_staticBody;
+				fixDef.shape = new b2PolygonShape();
+				fixDef.shape.SetAsBox(10, 10);
+				for ( var i = 0; i < map.coords.length; i ++ )
+				{
+					bodyDef.position.Set(map.coords[i].x, map.coords[i].z);
+					wWorld.CreateBody(bodyDef).CreateFixture(fixDef);
+				}
 			}
 
-			function onWindowResize() {
-
+			function onWindowResize()
+			{
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
 			}
+
+			function updatePhysicsWorld() {
+
+					// Apply "friction".
+					var lv = wPlayer.GetLinearVelocity();
+					lv.Multiply(0.95);
+					wPlayer.SetLinearVelocity(lv);
+					// Apply user-directed force.
+					var f = new b2Vec2(keyAxis[0]*wPlayer.GetMass()*10, keyAxis[1]*wPlayer.GetMass()*10);
+					wPlayer.ApplyImpulse(f, wPlayer.GetPosition());
+					keyAxis = [0,0];
+					// Take a time step.
+					wWorld.Step(1/60, 8, 3);
+			}
+
 
 			function animate() {
 
+				updatePhysicsWorld();
 				requestAnimationFrame( animate );
 
 				if ( controlsEnabled ) {
@@ -385,7 +414,8 @@
 					controls.getObject().translateX( velocity.x * delta );
 					controls.getObject().translateY( velocity.y * delta );
 					controls.getObject().translateZ( velocity.z * delta );
-
+					controls.getObject().position.x = wPlayer.GetPosition().x;
+					controls.getObject().position.z = wPlayer.GetPosition().y;
 					if ( controls.getObject().position.y < 10 ) {
 
 						velocity.y = 0;
@@ -394,13 +424,9 @@
 						canJump = true;
 
 					}
-
 					prevTime = time;
-
 				}
-
 				renderer.render( scene, camera );
-
 			}
 
 		</script>
