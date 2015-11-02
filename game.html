@@ -58,10 +58,10 @@
 		</style>
 	</head>
 	<body>
-		<script src='Box2dWeb.min.js'></script>
 		<script src="three.min.js"></script>
 		<script src="js/controls/PointerLockControls.js"></script>
 		<script src="map.js"></script>
+		<script src='Box2dWeb.min.js'></script>
 
 		<div id="blocker">
 
@@ -76,13 +76,11 @@
 		<script>
 
 			var camera, scene, renderer;
-			var geometry, material, mesh;
 			var controls;
-
+			var geometry, material, mesh;
 			var objects = [];
-
-			var raycaster;
-			var   keyAxis        = [0, 0];
+		//	var raycaster;
+			var keyAxis = [0, 0];
 			b2World        = Box2D.Dynamics.b2World,
 			b2FixtureDef   = Box2D.Dynamics.b2FixtureDef,
 			b2BodyDef      = Box2D.Dynamics.b2BodyDef,
@@ -103,44 +101,36 @@
 
 			var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
-			if ( havePointerLock ) {
-
+			if ( havePointerLock )
+			{
 				var element = document.body;
-
-				var pointerlockchange = function ( event ) {
-
-					if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
-
+				var pointerlockchange = function ( event )
+				{
+					if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element )
+					{
 						controlsEnabled = true;
 						controls.enabled = true;
-
 						blocker.style.display = 'none';
-
-					} else {
-
+					}
+					else
+				  {
 						controls.enabled = false;
-
 						blocker.style.display = '-webkit-box';
 						blocker.style.display = '-moz-box';
 						blocker.style.display = 'box';
-
 						instructions.style.display = '';
-
 					}
-
 				};
 
-				var pointerlockerror = function ( event ) {
-
+				var pointerlockerror = function ( event )
+				{
 					instructions.style.display = '';
-
 				};
 
 				// Hook pointer lock state change events
 				document.addEventListener( 'pointerlockchange', pointerlockchange, false );
 				document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
 				document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
-
 				document.addEventListener( 'pointerlockerror', pointerlockerror, false );
 				document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
 				document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
@@ -191,21 +181,22 @@
 			animate();
 
 			var controlsEnabled = false;
-
 			var moveForward = false;
 			var moveBackward = false;
 			var moveLeft = false;
 			var moveRight = false;
-
 			var prevTime = performance.now();
 			var velocity = new THREE.Vector3();
 
-			function init() {
-
+			function init()
+			{
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
-
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0x000000, 0, 750 );
+				scene.fog = new THREE.Fog( 0x000000, 0, 350 );
+				controls = new THREE.PointerLockControls( camera );
+				scene.add(controls.getObject());
+				controls.getObject().position.x = 60;
+				controls.getObject().position.z = 60;
 
 				/*var light = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.6);
 				light.position.set( 0.5, 1, 0.75 );
@@ -213,12 +204,6 @@
 
 				var light = new THREE.AmbientLight( 0x000000 );
 				scene.add( light );*/
-
-				controls = new THREE.PointerLockControls( camera );
-				scene.add( controls.getObject() );
-				controls.getObject().position.x = 60;
-				controls.getObject().position.z = 60;
-
 				var onKeyDown = function ( event )
 				{
 					switch ( event.keyCode )
@@ -226,27 +211,31 @@
 						case 38: // up
 						case 87: // w
 							moveForward = true;
-							keyAxis[0] = -1;
+							keyAxis[0] = -1 *controls.getObject().getWorldDirection().x;
+							keyAxis[1] = - 1 * controls.getObject().getWorldDirection().z;
 							break;
 						case 37: // left
 						case 65: // a
 							moveLeft = true;
-							keyAxis[1] = 1;
+							keyAxis[1] = controls.getObject().getWorldDirection().x;
+							keyAxis[0] = -1 * controls.getObject().getWorldDirection().z;
 							break;
 						case 40: // down
 						case 83: // s
 							moveBackward = true;
-							keyAxis[0] = 1;
+							keyAxis[0] = controls.getObject().getWorldDirection().x;
+							keyAxis[1] = controls.getObject().getWorldDirection().z;
 							break;
 						case 39: // right
 						case 68: // d
 							moveRight = true;
-							keyAxis[1] = -1;
+							keyAxis[1] = -1 * controls.getObject().getWorldDirection().x;
+							keyAxis[0] = controls.getObject().getWorldDirection().z;
 							break;
-						case 32: // space
+					/*	case 32: // space
 							if ( canJump === true ) velocity.y += 350;
 							canJump = false;
-							break;
+							break;*/
 					}
 				};
 
@@ -276,60 +265,60 @@
 				document.addEventListener( 'keydown', onKeyDown, false );
 				document.addEventListener( 'keyup', onKeyUp, false );
 
-				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+			  //raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
-				// floor
-			/*	var floorGeometry = new THREE.PlaneGeometry(280, 280, 1, 1);
-				floorGeometry.rotateX( -Math.PI / 2 );
-				var floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/concrete.png' );
+				geometry = new THREE.PlaneGeometry(280, 280, 1, 1);
+			 //	geometry.rotateX( -Math.PI / 2 ); //bug is here
+			/*	var floorTexture = new THREE.ImageUtils.loadTexture( 'res/img/concrete.png' );
 				floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-				floorTexture.repeat.set(40, 40);
-				var floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture});
-				var floor = new THREE.Mesh( floorGeometry, floorMaterial );
-				floor.position.x = 140;
-				floor.position.y = 0;
-				floor.position.z = 140;
-				scene.add(floor);
+				floorTexture.repeat.set(40, 40);*/
+				material = new THREE.MeshBasicMaterial({ color: 0xff0000});
+				mesh = new THREE.Mesh( geometry, material );
+				mesh.position.x = 140;
+				mesh.position.y = 0;
+				mesh.position.z = 140;
+				scene.add(mesh);
 
-			  var roofGeometry = new THREE.PlaneGeometry( 280, 280, 1, 1);
-				roofGeometry.rotateX(Math.PI / 2 );
-				roofTexture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
+			  geometry = new THREE.PlaneGeometry( 280, 280, 1, 1);
+				//geometry.rotateX( Math.PI / 2 );//bug is here
+			/*	var roofTexture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
 				roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping;
-				roofTexture.repeat.set(40, 40);
-			  roofMaterial = new THREE.MeshBasicMaterial({ map: roofTexture, side: THREE.DoubleSide });
-				var roof = new THREE.Mesh( roofGeometry, roofMaterial );
-				roof.position.x = 140;
-				roof.position.y = 30;
-				roof.position.z = 140;
-				scene.add( roof );*/
+				roofTexture.repeat.set(40, 40);*/
+			  material = new THREE.MeshBasicMaterial({ color: 0xffff00});
+				mesh = new THREE.Mesh( geometry, material );
+				mesh.position.x = 140;
+				mesh.position.y = 30;
+				mesh.position.z = 140;
+				scene.add(mesh);
+				CreateWalls();
 
-				geometry = new THREE.BoxGeometry( 20, 30, 20 );
-				texture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0x000000);
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+				//
+				window.addEventListener( 'resize', onWindowResize, false );
+				CreatePhysicsWorld();
+			}
+
+
+			function CreateWalls()
+			{
+				var geometry = new THREE.BoxGeometry(20, 30, 20);
+				var	texture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				texture.repeat.set(4, 8);
-
+				var material = new THREE.MeshBasicMaterial( { map: texture} );
 				for ( var i = 0; i < map.coords.length; i ++ )
 				{
-					material = new THREE.MeshBasicMaterial( { map: texture} );
 					var mesh = new THREE.Mesh( geometry, material );
 					mesh.position.x = map.coords[i].x;
 					mesh.position.y = 15;
 					mesh.position.z = map.coords[i].z;
-					scene.add( mesh );
-					objects.push( mesh );
+					scene.add(mesh);
+					objects.push(mesh);
 				}
-				//
-
-				renderer = new THREE.WebGLRenderer();
-				renderer.setClearColor( 0xffffff );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
-
-				//
-
-				window.addEventListener( 'resize', onWindowResize, false );
-				CreatePhysicsWorld();
 			}
 
 			function CreatePhysicsWorld()
@@ -358,32 +347,34 @@
 
 			function onWindowResize()
 			{
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-				renderer.setSize( window.innerWidth, window.innerHeight );
+					camera.aspect = window.innerWidth / window.innerHeight;
+					camera.updateProjectionMatrix();
+					renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 
-			function updatePhysicsWorld() {
-
+			function updatePhysicsWorld()
+			{
 					// Apply "friction".
 					var lv = wPlayer.GetLinearVelocity();
 					lv.Multiply(0.95);
 					wPlayer.SetLinearVelocity(lv);
 					// Apply user-directed force.
-					var f = new b2Vec2(keyAxis[0]*wPlayer.GetMass()*10, keyAxis[1]*wPlayer.GetMass()*10);
+					var f = new b2Vec2(keyAxis[0]*wPlayer.GetMass()*4, keyAxis[1]*wPlayer.GetMass()*4);
 					wPlayer.ApplyImpulse(f, wPlayer.GetPosition());
 					keyAxis = [0,0];
 					// Take a time step.
-					wWorld.Step(1/60, 8, 3);
+				  wWorld.Step(1/40, 6, 3);
 			}
 
 
-			function animate() {
-
+			function animate()
+			{
 				updatePhysicsWorld();
-				requestAnimationFrame( animate );
-
-				if ( controlsEnabled ) {
+				requestAnimationFrame(animate);
+				controls.getObject().position.x = wPlayer.GetPosition().x;
+				controls.getObject().position.z = wPlayer.GetPosition().y;
+			/*	if ( controlsEnabled )
+			  {
 					raycaster.ray.origin.copy( controls.getObject().position );
 					raycaster.ray.origin.y -= 10;
 
@@ -401,32 +392,28 @@
 
 					if ( moveForward ) velocity.z -= 400.0 * delta;
 					if ( moveBackward ) velocity.z += 400.0 * delta;
-
 					if ( moveLeft ) velocity.x -= 400.0 * delta;
 					if ( moveRight ) velocity.x += 400.0 * delta;
 
-					if ( isOnObject === true ) {
+					if ( isOnObject === true )
+					{
 						velocity.y = Math.max( 0, velocity.y );
-
 						canJump = true;
 					}
-
-					controls.getObject().translateX( velocity.x * delta );
+				/*	controls.getObject().translateX(controls.getObject().position.x - wPlayer.GetPosition().x);
 					controls.getObject().translateY( velocity.y * delta );
-					controls.getObject().translateZ( velocity.z * delta );
-					controls.getObject().position.x = wPlayer.GetPosition().x;
-					controls.getObject().position.z = wPlayer.GetPosition().y;
-					if ( controls.getObject().position.y < 10 ) {
-
+					controls.getObject().translateZ(controls.getObject().position.z - wPlayer.GetPosition().z);
+*/
+				/*	if ( controls.getObject().position.y < 10 )
+					{
 						velocity.y = 0;
 						controls.getObject().position.y = 10;
-
 						canJump = true;
-
 					}
 					prevTime = time;
 				}
-				renderer.render( scene, camera );
+				var tmp = controls.getObject().getWorldDirection();*/
+				renderer.render(scene, camera);
 			}
 
 		</script>
