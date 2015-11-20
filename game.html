@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="css/style.css"/>
 	</head>
 	<body>
-
+		<script src="js/map.js"></script>
 		<script src="js/three.min.js"></script>
 		<script src="js/controls/PointerLockControls.js"></script>
 		<script src='js/Box2D_v2.3.1_min.js'></script>
@@ -177,9 +177,7 @@
 
 			  raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0 ), 0, 10);
 
-				var jsonLoader = new THREE.JSONLoader();
-				jsonLoader.load( "js/map.js", CreateLabirint);
-
+				CreateLabirint();
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor(0x000000);
@@ -187,7 +185,7 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				document.body.appendChild(renderer.domElement);
 				window.addEventListener('resize', onWindowResize, false);
-				jsonLoader.load( "js/map.js", CreatePhysicsWorld);
+				CreatePhysicsWorld();
 			}
 
 
@@ -243,7 +241,7 @@
 				{
 					materials[i].morphTargets = true;
 				}
-				var material = new THREE.MeshBasicMaterial( materials );
+				var material = new THREE.MeshFaceMaterial( materials );
 				android = new THREE.Mesh( geometry, material );
 				android.position.x = 60;
 				android.position.z = 60;
@@ -259,7 +257,7 @@
 				wPlayer = wWorld.CreateBody(bodyDef);
 				var fixDef = new Box2D.b2FixtureDef();
 				fixDef.set_density(10.0);
-				fixDef.set_friction(0);
+				fixDef.set_friction(5);
 				fixDef.set_restitution(0.25);
 				fixDef.set_shape(new Box2D.b2CircleShape(2));
 				wPlayer.CreateFixture(fixDef);
