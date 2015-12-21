@@ -125,13 +125,11 @@ var enemy;
 var prevTime = performance.now();
 var velocity = new THREE.Vector3();
 
-
-
 function AddWalk(x, y, index)
 {
   var array = [];
-  console.log(x, y);
-  console.log(ByteMap[x][y]);
+//  console.log(x, y);
+//  console.log(ByteMap[x][y]);
   if (ByteMap[x][y] == 0)
   {
     array.push(index);
@@ -143,12 +141,10 @@ function ConcatenateArrays(origin, newArray)
 {
   var curArray = [];
   curArray = origin;
-
   for (var i = 0; i < newArray.length; ++i)
   {
     curArray.push(newArray[i]);
   }
-
   return curArray;
 }
 
@@ -269,9 +265,6 @@ function SelectNextPoint()
       }
     }
   }
-
-  //console.log("новая точка: ", newStep.x, newStep.y);
-  //console.log("пред точка: ", prevStep.x, prevStep.y);
   ByteMap[newStep.x][newStep.y] = 2;
   ByteMap[prevStep.x][prevStep.y] = 0;
 }
@@ -300,7 +293,6 @@ function ChooseNewDirection()
       nextDirection = "RIGHT";
     }
   }
-  //alert(nextDirection);
 }
 
 function lerp(v0, v1, t)
@@ -310,8 +302,6 @@ function lerp(v0, v1, t)
 
 function CheckCoords(x, y)
 {
-  //console.log(x,y);
-  //console.log(ByteMap[x][y]);
   return ByteMap[x][y] == 0;
 }
 
@@ -320,14 +310,27 @@ function EnemyWalk()
   if (nextDirection == "UP" || nextDirection == "DOWN")
   {
     enemy.position.z = lerp(currentPoint.z, nextPoint.z, enemySubStep / framesPerStep);
-    //console.log(enemy.position.z);
+    if (nextDirection == "UP")
+    {
+      enemy.rotation.y = Math.PI;
+    }
+    else {
+      enemy.rotation.y = 0;
+    }
+
   }
   else
   {
     enemy.position.x = lerp(currentPoint.x, nextPoint.x, enemySubStep / framesPerStep);
-    //console.log(enemy.position.x);
-  }
+    if (nextDirection == "LEFT")
+    {
+        enemy.rotation.y = -Math.PI/2;
+    }
+    else {
+        enemy.rotation.y = Math.PI/2;
+    }
 
+  }
   enemySubStep++;
 
   if (enemySubStep == framesPerStep)
@@ -339,12 +342,7 @@ function EnemyWalk()
     prevStep.y = newStep.y;
     currentDirection = nextDirection;
     SelectNextPoint();
-    //console.log(currentPoint.x, currentPoint.z);
-    //console.log(nextPoint.x, nextPoint.z);
-    //console.log("Шаг завершен!");
   }
-
-  return;
 }
 
 function init()
@@ -424,7 +422,7 @@ function init()
   document.addEventListener('keydown', onKeyDown, false);
   document.addEventListener('keyup', onKeyUp, false);
 
-    raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0 ), 0, 10);
+  raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0 ), 0, 10);
 
   CreateLabirint();
   CreateEnemy();
@@ -439,10 +437,10 @@ function init()
   SelectNextPoint();
 }
 
-function CreateFloorRoof(PI, imageSrc, y)
+function CreateFloorRoof(rotation, imageSrc, y)
 {
   var floorGeometry = new THREE.PlaneGeometry(280, 280, 1, 1);
-  floorGeometry.rotateX( PI ); //bug is here
+  floorGeometry.rotateX(rotation);
   var floorTexture = new THREE.ImageUtils.loadTexture(imageSrc);
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(40, 40);
@@ -451,15 +449,13 @@ function CreateFloorRoof(PI, imageSrc, y)
   floor.position.x = 140;
   floor.position.y = y;
   floor.position.z = 140;
-
   return floor;
 }
 
 function CreateLabirint()
 {
-  var floor = CreateFloorRoof(-Math.PI / 2, 'res/img/concrete.png', 0);s
+  var floor = CreateFloorRoof(-Math.PI / 2, 'res/img/concrete.png', 0);
   scene.add(floor);
-
   var roof = CreateFloorRoof(Math.PI / 2, 'res/img/brick.png', 30);
   scene.add(roof);
 
@@ -476,15 +472,12 @@ function CreateLabirint()
     mesh.position.z = map.coords[i].z;
     scene.add(mesh);
   }
-
   var jsonLoader = new THREE.JSONLoader();
   jsonLoader.load( "js/android-animations.js", addModelToScene );
-  // addModelToScene function is called back after model has loaded
 }
 
 function addModelToScene(geometry, materials)
 {
-  // for preparing animation
   for (var i = 0; i < materials.length; i++)
   {
     materials[i].morphTargets = true;
@@ -494,13 +487,6 @@ function addModelToScene(geometry, materials)
   android.position.x = 60;
   android.position.z = 60;
   scene.add( android );
-
-  //var material = new THREE.MeshNormalMaterial( materials );
-  //enemy = new THREE.Mesh( geometry, material );
-  //enemy.position.x = 260;
-  //enemy.position.z = 260;
-  //scene.add(enemy);
-  //ByteMap[13][13] = 2;
 }
 
 function CreatePhysicsWorld()
@@ -557,27 +543,21 @@ function SetShiftCoef()
 
 function CreateEnemy()
 {
-  //for (var i = 0; i < materials.length; i++)
-  //{
-  //	materials[i].morphTargets = true;
-  //}
-  //var material = new THREE.MeshNormalMaterial( materials );
-  //enemy = new THREE.Mesh( geometry, material );
-  //enemy.position.x = 260;
-  //enemy.position.z = 260;
-  //scene.add(enemy);
-  //ByteMap[13][13] = 2;
-  var geometry = new THREE.BoxGeometry(4, 6, 4);
-  var	texture = new THREE.ImageUtils.loadTexture('res/img/brick.png');
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(4, 8);
-  var material = new THREE.MeshBasicMaterial( { map: texture} );
+  var jsonLoader = new THREE.JSONLoader();
+  jsonLoader.load( "js/android-animations.js", addEnemyToScene );
+}
 
+function addEnemyToScene(geometry, materials)
+{
+  for (var i = 0; i < materials.length; i++)
+  {
+    materials[i].morphTargets = true;
+  }
+  var material = new THREE.MeshNormalMaterial( materials );
   enemy = new THREE.Mesh( geometry, material );
   enemy.position.x = 260;
-  enemy.position.y = 5;
   enemy.position.z = 260;
-  scene.add(enemy);
+  scene.add( enemy );
 }
 
 function updatePhysicsWorld()
@@ -637,5 +617,6 @@ function animate()
   android.position.z = wPlayer.GetPosition().get_y();
 
   android.rotation.y = controls.getObject().rotation.y;
+//  enemy.rotation.y = -android.rotation.y;
   renderer.render(scene,camera);
 }
